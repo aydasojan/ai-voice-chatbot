@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleek AI Voice Assistant</title>
+    <!-- Google Fonts for a premium look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f8fafc;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            height: 85vh;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .chat-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        #chatbox {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        #chatbox::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chatbox::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease-out forwards;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .bot-message {
+            background: #334155;
+            color: #f1f5f9;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .system-message {
+            background: transparent;
+            color: #94a3b8;
+            font-style: italic;
+            font-size: 0.85rem;
+            align-self: center;
+            text-align: center;
+        }
+
+        .input-area {
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #userInput {
+            flex: 1;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px 18px;
+            border-radius: 14px;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        #userInput:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            background: #334155;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 14px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #475569;
+            transform: translateY(-1px);
+        }
+
+        .send-btn {
+            background: #6366f1;
+            border: none;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .send-btn:hover {
+            background: #4f46e5;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .voice-btn {
+            background: #0ea5e9;
+            border: none;
+        }
+
+        .voice-btn:hover {
+            background: #0284c7;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+
+        .voice-active {
+            background: #ef4444 !important;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="status-dot"></div>
+            <h2>Gemini AI Voice Assistant</h2>
+        </div>
+        
+        <div id="chatbox">
+            <div class="message bot-message">Hello! I am your updated AI companion. Ask me anything or click the mic to talk!</div>
+        </div>
+
+        <div class="input-area">
+            <button class="voice-btn" id="voiceBtn" onclick="startVoice()" title="Speak">🎤</button>
+            <input type="text" id="userInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function sendMessage() {
+        let inputField = document.getElementById("userInput");
+        let message = inputField.value.trim();
+        if(!message) return;
+        
+        // Render User Message
+        let chatbox = document.getElementById("chatbox");
+        chatbox.innerHTML += `<div class="message user-message">${escapeHtml(message)}</div>`;
+        inputField.value = "";
+        scrollChat();
+
+        // Render temporary loading indicator
+        let loadingId = "load-" + Date.now();
+        chatbox.innerHTML += `<div class="message bot-message" id="${loadingId}"><i>Thinking...</i></div>`;
+        scrollChat();
+
+        // Contact Flask backend
+        fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({message: message})
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Remove loading indicator & show true bot reply
+            document.getElementById(loadingId).remove();
+            chatbox.innerHTML += `<div class="message bot-message"><b>AI:</b> ${escapeHtml(data.response)}</div>`;
+            scrollChat();
+            
+            // Speak response text aloud via native browser speech engine
+            let speech = new SpeechSynthesisUtterance(data.response);
+            window.speechSynthesis.speak(speech);
+        })
+        .catch(err => {
+            document.getElementById(loadingId).remove();
+            chatbox.innerHTML += `<div class="message bot-message" style="color: #ef4444;">Error connecting to server.</div>`;
+            scrollChat();
+        });
+    }
+
+    function startVoice() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Speech recognition not supported in this browser. Please use Chrome!");
+            return;
+        }
+        
+        const recognition = new SpeechRecognition();
+        const voiceBtn = document.getElementById("voiceBtn");
+        
+        recognition.onstart = function() {
+            voiceBtn.classList.add("voice-active");
+            let chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML += `<div class="message system-message" id="listening-status">Listening to your voice...</div>`;
+            scrollChat();
+        };
+
+        recognition.onend = function() {
+            voiceBtn.classList.remove("voice-active");
+            let status = document.getElementById("listening-status");
+            if(status) status.remove();
+        };
+        
+        recognition.start();
+
+        recognition.onresult = function(event) {
+            let text = event.results[0][0].transcript;
+            document.getElementById("userInput").value = text;
+            sendMessage();
+        };
+    }
+
+    function scrollChat() {
+        let chatbox = document.getElementById("chatbox");
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    </script>
+</body>
+</html>
